@@ -131,9 +131,9 @@ PHP_RINIT_FUNCTION(vld)
 	if (VLD_G(active)) {
 		zend_compile_file = vld_compile_file;
 		zend_compile_string = vld_compile_string;
-		if (!VLD_G(execute)) {
-			zend_execute_ex = vld_execute_ex;
-		}
+		// if (!VLD_G(execute)) {
+		// 	zend_execute_ex = vld_execute_ex;
+		// }
 	}
 
 	if (VLD_G(save_paths)) {
@@ -381,14 +381,14 @@ static zend_op_array *vld_compile_string(zval *source_string, char *filename)
  *    This function provides a hook for execution */
 static void vld_execute_ex(zend_execute_data *execute_data)
 {
-	static bool vld_once_flag = false;
-    if (vld_once_flag) {
-        vld_dump_oparray(&execute_data->func->op_array);
-        zend_hash_apply_with_arguments(CG(function_table), (apply_func_args_t)vld_dump_fe_wrapper, 0);
-        zend_hash_apply(CG(class_table), (apply_func_t)vld_dump_cle_wrapper);
-        return;
-    }
-    vld_once_flag = true;
-    old_execute_ex(execute_data);
+	// static bool vld_once_flag = false;
+    // if (vld_once_flag) {
+    //     zend_hash_apply_with_arguments(CG(function_table), (apply_func_args_t)vld_dump_fe_wrapper, 0);
+    //     zend_hash_apply(CG(class_table), (apply_func_t)vld_dump_cle_wrapper);
+    //     return;
+    // }
+    // vld_once_flag = true;
+	vld_dump_oparray(&execute_data->func->op_array);
+    old_execute_ex(execute_data TSRMLS_DC);
 }
 /* }}} */

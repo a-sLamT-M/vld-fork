@@ -20,6 +20,9 @@
 #include "ext/standard/url.h"
 #include "set.h"
 #include "php_vld.h"
+#include "zend_smart_str.h"
+#include "ext/standard/php_var.h"
+
 
 ZEND_EXTERN_MODULE_GLOBALS(vld)
 
@@ -376,7 +379,7 @@ static inline int vld_dump_zval_long(ZVAL_VALUE_TYPE value)
 
 static inline int vld_dump_zval_double(ZVAL_VALUE_TYPE value)
 {
-	return vld_printf (stderr, "%g", value.dval);
+	return vld_printf (stderr, "%f", value.dval);
 }
 
 static inline int vld_dump_zval_string(ZVAL_VALUE_TYPE value)
@@ -390,9 +393,17 @@ static inline int vld_dump_zval_string(ZVAL_VALUE_TYPE value)
 	return len;
 }
 
-static inline int vld_dump_zval_array(ZVAL_VALUE_TYPE value)
+static inline int vld_dump_zval_array(zval* value)
 {
-	return vld_printf (stderr, "<array>");
+	smart_str buf = {0};
+	php_var_export_ex(value, 1, &buf);
+	smart_str_0 (&buf);
+	ZVAL_VALUE_STRING_TYPE *encoded = php_url_encode(ZSTRING_VALUE(buf.s), buf.s->len);
+	int result = vld_printf(stderr, "%s", ZSTRING_VALUE(encoded));
+	efree(encoded);
+	smart_str_free(&buf);
+	return result;
+	// return vld_printf (stderr, "<array>");
 }
 
 static inline int vld_dump_zval_object(ZVAL_VALUE_TYPE value)
@@ -457,7 +468,7 @@ int vld_dump_zval (zval val)
 		case IS_LONG:           return vld_dump_zval_long (val.value);
 		case IS_DOUBLE:         return vld_dump_zval_double (val.value);
 		case IS_STRING:         return vld_dump_zval_string (val.value);
-		case IS_ARRAY:          return vld_dump_zval_array (val.value);
+		case IS_ARRAY:          return vld_dump_zval_array (&val);
 		case IS_OBJECT:         return vld_dump_zval_object (val.value);
 		case IS_RESOURCE:       return vld_dump_zval_resource (val.value);
 #if PHP_VERSION_ID < 70300
