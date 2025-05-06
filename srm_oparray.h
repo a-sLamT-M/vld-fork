@@ -1,6 +1,6 @@
 /*
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2022 Derick Rethans                               |
+   | Copyright (c) 1997-2019 Derick Rethans                               |
    +----------------------------------------------------------------------+
    | This source file is subject to the 2-Clause BSD license which is     |
    | available through the LICENSE file, or online at                     |
@@ -44,7 +44,6 @@
 #define OP1_CLASS    1<<11
 #define RES_CLASS    1<<12
 #define OP2_JMP_ARRAY    1<<13
-#define OP2_INDEX    1<<14
 
 #define SPECIAL    0xff
 
@@ -56,14 +55,13 @@
 #define EXT_VAL_JMP_REL   1<<24
 #define EXT_VAL_JMP_ABS   1<<25
 #define VLD_IS_JMP_ARRAY  1<<26
-#define VLD_IS_INDEX      1<<27
 
 typedef struct _op_usage {
 	const char  *name;
 	unsigned int flags;
 } op_usage;
 
-void vld_dump_oparray (zend_op_array *opa);
+void vld_dump_oparray (zend_op_array *opa TSRMLS_DC);
 void vld_mark_dead_code (zend_op_array *opa);
 
 #endif
